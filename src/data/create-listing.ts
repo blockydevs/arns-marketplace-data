@@ -24,9 +24,8 @@ type ListingConfiguration =
 
 interface Props {
   antProcessId: string;
-  activityProcessId: string;
   marketplaceProcessId: string;
-  swapTokenId: string;
+  arioProcessId: string;
   config: ListingConfiguration;
   ao: AoClient;
   walletAddress: string;
@@ -95,9 +94,8 @@ export async function createListing(props: Props) {
     signer,
     walletAddress,
     antProcessId,
-    activityProcessId,
     marketplaceProcessId,
-    swapTokenId,
+    arioProcessId,
     config,
     waitForConfirmation = true,
     retryConfirmationAttempts,
@@ -119,7 +117,7 @@ export async function createListing(props: Props) {
         },
         {
           name: 'X-Swap-Token',
-          value: swapTokenId
+          value: arioProcessId
         },
         {
           name: 'Sender',
@@ -154,7 +152,7 @@ export async function createListing(props: Props) {
     async () => {
       const result = await fetchActiveListings({
         ao,
-        activityProcessId,
+        marketplaceProcessId,
         limit: 1,
         filters: {
           Sender: walletAddress,

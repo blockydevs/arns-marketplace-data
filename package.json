@@ -1,6 +1,6 @@
 {
   "name": "@blockydevs/arns-marketplace-data",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Data and utility library for interacting with the ArNS Marketplace, including hooks, contexts, data-fetching logic, and formatting utilities.",
   "license": "MIT",
   "sideEffects": false,

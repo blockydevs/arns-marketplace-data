@@ -2,8 +2,6 @@ import type { ListingDetails, ListingDetailsCommonFields } from '../types/listin
 import type { RawListingDetails } from '../types/listing-details.raw';
 
 export function transformRawListingDetails(raw: RawListingDetails): ListingDetails {
-  const leaseStartedAt = raw.LeaseStartTimestamp ?? null;
-  const leaseEndsAt = raw.LeaseEndTimestamp ?? null;
   const expirationTime = raw.ExpirationTime ?? null;
   const createdAt = raw.CreatedAt;
   const hasExpired = raw.ExpirationTime ? Date.now() > raw.ExpirationTime : false;
@@ -12,12 +10,8 @@ export function transformRawListingDetails(raw: RawListingDetails): ListingDetai
     orderId: raw.OrderId,
     sender: raw.Sender,
     duration: expirationTime ? expirationTime - createdAt : null,
-    name: raw.Domain,
     antProcessId: raw.DominantToken,
     quantity: raw.Quantity,
-    ownershipType: raw.OwnershipType,
-    leaseStartedAt: leaseStartedAt ? new Date(leaseStartedAt).toISOString() : null,
-    leaseEndsAt: leaseEndsAt ? new Date(leaseEndsAt).toISOString() : null,
     createdAt: new Date(createdAt).toISOString()
   };
 

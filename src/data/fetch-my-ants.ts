@@ -1,33 +1,36 @@
-import { AOProcess, ARIO, type AoArNSNameDataWithName, type AoClient, type PaginationParams } from '@ar.io/sdk/web';
-import arweaveGraphql from 'arweave-graphql';
+import {
+  ANT,
+  AOProcess,
+  ARIO,
+  type AoArNSNameDataWithName,
+  type AoClient,
+  type PaginationParams
+} from '@ar.io/sdk/web';
 
-import type { ActiveListing } from '../types/active-listings';
 import type { OwnedANT } from '../types/common';
 import { fetchActiveListings } from './fetch-active-listings';
 
 interface Props {
   walletAddress: string;
   ao: AoClient;
-  networkProcessId: string;
-  activityProcessId: string;
-  graphqlUrl: string;
+  arioProcessId: string;
+  marketplaceProcessId: string;
   config?: PaginationParams<AoArNSNameDataWithName>;
 }
 
-export type FetchMyANTsResult = (AoArNSNameDataWithName & { listing: ActiveListing | null })[];
+export type FetchMyANTsResult = OwnedANT[];
 
 export async function fetchMyANTs(props: Props): Promise<FetchMyANTsResult> {
   const {
     walletAddress,
     ao,
-    networkProcessId,
-    activityProcessId,
-    graphqlUrl,
+    arioProcessId,
+    marketplaceProcessId,
     config = {
       limit: 1000
     }
   } = props;
-  const contract = ARIO.init({ process: new AOProcess({ processId: networkProcessId, ao }) });
+  const contract = ARIO.init({ process: new AOProcess({ ao, processId: arioProcessId }) });
 
   const userDomains: Record<string, AoArNSNameDataWithName> = {};
   let cursor: string | undefined = config.cursor;
@@ -36,7 +39,7 @@ export async function fetchMyANTs(props: Props): Promise<FetchMyANTsResult> {
   // start fetching listings created by walletAddress in parallel
   const userListingsPromise = fetchActiveListings({
     ao,
-    activityProcessId,
+    marketplaceProcessId,
     limit: 0,
     filters: { Sender: walletAddress }
   });
@@ -56,21 +59,34 @@ export async function fetchMyANTs(props: Props): Promise<FetchMyANTsResult> {
     hasMore = res.hasMore;
   }
 
-  // verify ownership of each ANT process
+  // VERIFY OWNERSHIP: query each ANT process state to ensure Owner matches walletAddress.
+  // (Authoritative source; index can be stale or reflect prior owner.)
   const records = Object.values(userDomains);
-  const gql = arweaveGraphql(graphqlUrl);
-  const [queryMetadataResult, userListings] = await Promise.all([
-    gql.getTransactions({ ids: records.map((r) => r.processId), first: 1000 }),
-    userListingsPromise
-  ]);
 
-  const ownedRecords = queryMetadataResult.transactions.edges.reduce<OwnedANT[]>((acc, edge) => {
-    const record = records.find((r) => r.processId === edge.node.id);
-    if (!record) return acc;
-    const listing = userListings.items.find((listing) => listing.antProcessId === record.processId) ?? null;
-    acc.push({ ...record, listing });
-    return acc;
-  }, []);
+  // TODO: limit concurrency or switch to GraphQL
+  // it was based on GraphQL before but got removed due to indexing delay issues (users could see domains they don't own)
+  const verified = await Promise.all(
+    records.map(async (record) => {
+      try {
+        const ant = ANT.init({ process: new AOProcess({ processId: record.processId, ao }) });
+        const state = await ant.getState();
+        const isOwned = state.Owner === walletAddress;
 
-  return ownedRecords;
+        if (!isOwned) {
+          return null;
+        }
+
+        return record;
+      } catch {
+        return null;
+      }
+    })
+  );
+  const ownedRecords = verified.filter((r): r is AoArNSNameDataWithName => !!r);
+  const userListings = await userListingsPromise;
+
+  return ownedRecords.map((record) => ({
+    ...record,
+    listing: userListings.items.find((listing) => listing.antProcessId === record.processId) ?? null
+  }));
 }

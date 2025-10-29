@@ -6,7 +6,7 @@ import type { RawCompletedListing } from '../types/completed-listings.raw';
 
 interface Props {
   ao: AoClient;
-  activityProcessId: string;
+  marketplaceProcessId: string;
   limit?: number;
   cursor?: string;
   filters?: {
@@ -24,8 +24,8 @@ export type FetchCompletedListingsResult = Omit<
 };
 
 export async function fetchCompletedListings(props: Props): Promise<FetchCompletedListingsResult> {
-  const { ao, activityProcessId, limit = 10, cursor, filters } = props;
-  const contract = ARIO.init({ process: new AOProcess({ ao, processId: activityProcessId }) });
+  const { ao, marketplaceProcessId, limit = 10, cursor, filters } = props;
+  const contract = ARIO.init({ process: new AOProcess({ ao, processId: marketplaceProcessId }) });
 
   const shouldFetchEverything = limit === 0;
   const items: RawCompletedListing[] = [];

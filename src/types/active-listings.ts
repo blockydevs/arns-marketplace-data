@@ -1,15 +1,11 @@
-import type { OrderStatus, OwnershipType } from './common';
+import type { OrderStatus } from './common';
 
 export interface ActiveListingCommonFields {
   orderId: string;
   sender: string;
-  name: string;
   antProcessId: string;
   quantity: string;
   duration: number | null;
-  ownershipType: OwnershipType;
-  leaseStartedAt: string | null;
-  leaseEndsAt: string | null;
   createdAt: string;
 }
 
