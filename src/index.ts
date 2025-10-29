@@ -3,6 +3,10 @@ export { searchANT } from './data/search-ant';
 export type { SearchANTResult } from './data/search-ant';
 export { fetchMyANTs } from './data/fetch-my-ants';
 export type { FetchMyANTsResult } from './data/fetch-my-ants';
+export { fetchANTsMetadata } from './data/fetch-ants-metadata';
+export type { FetchANTsMetadataResult } from './data/fetch-ants-metadata';
+export { fetchAllAntsFromActivity } from './data/fetch-all-ants-from-activity';
+export type { FetchAllAntsFromActivityResult } from './data/fetch-all-ants-from-activity';
 export { fetchActiveListings } from './data/fetch-active-listings';
 export type { FetchActiveListingsResult } from './data/fetch-active-listings';
 export { fetchCompletedListings } from './data/fetch-completed-listings';
@@ -18,6 +22,7 @@ export { settleListing } from './data/settle-listing';
 export { cancelListing } from './data/cancel-listing';
 
 // Types
+export * from './types/activity.raw';
 export * from './types/active-listings.raw';
 export * from './types/active-listings';
 export * from './types/completed-listings.raw';

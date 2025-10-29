@@ -35,7 +35,7 @@ const ao = connect();
 
 const listings = await fetchActiveListings({
   ao,
-  activityProcessId: '<MARKETPLACE_ACTIVITY_ID>',
+  marketplaceProcessId: '<MARKETPLACE_PROCESS_ID>',
   limit: 10,
 });
 
@@ -51,29 +51,50 @@ import { searchANT, fetchListingDetails } from '@blockydevs/arns-marketplace-dat
 await searchANT({
   name: 'ardrive',
   ao,
-  networkProcessId: '<ARIO_PROCESS_ID>',
-  activityProcessId: '<MARKETPLACE_ACTIVITY_ID>',
+  arioProcessId: '<ARIO_PROCESS_ID>',
+  marketplaceProcessId: '<MARKETPLACE_PROCESS_ID>',
 });
 
-await fetchListingDetails({ ao, activityProcessId: '<MARKETPLACE_ACTIVITY_ID>', orderId: '<ORDER_ID>' });
+await fetchListingDetails({ ao, marketplaceProcessId: '<MARKETPLACE_PROCESS_ID>', orderId: '<ORDER_ID>' });
 ```
 
+Bulk metadata lookups:
+
+```tsx
+import { fetchAllAntsFromActivity, fetchANTsMetadata } from '@blockydevs/arns-marketplace-data';
+
+// Get all ANT IDs that have ever been listed
+const antIds = await fetchAllAntsFromActivity({
+  ao,
+  marketplaceProcessId: '<MARKETPLACE_PROCESS_ID>',
+});
+
+// Fetch metadata for multiple ANTs
+const metadata = await fetchANTsMetadata({
+  ao,
+  arioProcessId: '<ARIO_PROCESS_ID>',
+  antIds: ['<ANT_ID_1>', '<ANT_ID_2>', '<ANT_ID_3>'],
+});
+
+console.log(metadata);
+```
 
 ## Process IDs you need
 
-- ARIO (network) Process ID – resolve names and ANT metadata
-- Marketplace Activity Process ID – read listing activity
-- Marketplace Contract Process ID – write actions (create/buy/bid/settle/cancel)
-- Swap/Payment Token Process ID – usually ARIO token process
+- ARIO (network) Process ID
+- Marketplace Contract Process ID
 
 ## Essential APIs
 
 ### Read
-- `fetchActiveListings({ ao, activityProcessId, limit?, cursor?, filters? })`
-- `fetchListingDetails({ ao, activityProcessId, orderId })`
-- `fetchCompletedListings({ ao, activityProcessId, limit?, cursor?, filters? })`
-- `fetchMyANTs({ ao, walletAddress, networkProcessId, activityProcessId, graphqlUrl, config? })`
-- `searchANT({ name, ao, networkProcessId, activityProcessId })`
+- `fetchActiveListings({ ao, marketplaceProcessId, limit?, cursor?, filters? })`
+- `fetchListingDetails({ ao, marketplaceProcessId, orderId })`
+- `fetchCompletedListings({ ao, marketplaceProcessId, limit?, cursor?, filters? })`
+- `fetchMyANTs({ ao, walletAddress, arioProcessId, marketplaceProcessId, config? })`
+- `searchANT({ name, ao, arioProcessId, marketplaceProcessId })`
+- `fetchAllAntsFromActivity({ ao, marketplaceProcessId })`
+- `fetchANTsMetadata({ ao, arioProcessId, antIds })`
+
 
 ### Write (requires signer)
 
@@ -89,9 +110,8 @@ await createListing({
   signer,
   walletAddress: '<WALLET>',
   antProcessId: '<ANT_ID>',
-  activityProcessId: '<MARKETPLACE_ACTIVITY_ID>',
-  marketplaceProcessId: '<MARKETPLACE_ID>',
-  swapTokenId: '<SWAP_TOKEN_ID>',
+  marketplaceProcessId: '<MARKETPLACE_PROCESS_ID>',
+  arioProcessId: '<ARIO_PROCESS_ID>',
   config: { type: 'fixed', price: '10' },
   waitForConfirmation: true,
 });
@@ -103,9 +123,9 @@ await buyListing({
   walletAddress: '<WALLET>',
   orderId: '<ORDER_ID>',
   price: '12.5',
-  marketplaceProcessId: '<MARKETPLACE_ID>',
+  marketplaceProcessId: '<MARKETPLACE_PROCESS_ID>',
+  arioProcessId: '<ARIO_PROCESS_ID>',
   antTokenId: '<ANT_ID>',
-  swapTokenId: '<SWAP_TOKEN_ID>',
   orderType: 'fixed',
 });
 
@@ -116,14 +136,14 @@ await bidListing({
   walletAddress: '<WALLET>',
   orderId: '<ORDER_ID>',
   bidPrice: '15',
-  marketplaceProcessId: '<MARKETPLACE_ID>',
+  marketplaceProcessId: '<MARKETPLACE_PROCESS_ID>',
+  arioProcessId: '<ARIO_PROCESS_ID>',
   antTokenId: '<ANT_ID>',
-  swapTokenId: '<SWAP_TOKEN_ID>',
 });
 
 // finalize
-await settleListing({ ao, signer, orderId: '<ORDER_ID>', marketplaceProcessId: '<MARKETPLACE_ID>' });
-await cancelListing({ ao, signer, orderId: '<ORDER_ID>', marketplaceProcessId: '<MARKETPLACE_ID>' });
+await settleListing({ ao, signer, orderId: '<ORDER_ID>', marketplaceProcessId: '<MARKETPLACE_PROCESS_ID>' });
+await cancelListing({ ao, signer, orderId: '<ORDER_ID>', marketplaceProcessId: '<MARKETPLACE_PROCESS_ID>' });
 ```
 
 
@@ -147,7 +167,7 @@ import { fetchCompletedListings } from '@blockydevs/arns-marketplace-data';
 
 const completed = await fetchCompletedListings({
   ao,
-  activityProcessId: '<MARKETPLACE_ACTIVITY_ID>',
+  marketplaceProcessId: '<MARKETPLACE_PROCESS_ID>',
   limit: 20, // or 0 to fetch all
   // filters: { Sender: '<WALLET>', DominantToken: '<ANT_ID>', Name: 'example' }
 });
@@ -178,7 +198,7 @@ let cursor: string | undefined;
 const all: any[] = [];
 
 while (true) {
-  const page = await fetchActiveListings({ ao, activityProcessId: '<ID>', limit: 100, cursor });
+  const page = await fetchActiveListings({ ao, marketplaceProcessId: '<MARKETPLACE_PROCESS_ID>', limit: 100, cursor });
   all.push(...page.items);
   if (!page.hasMore) break;
   cursor = page.nextCursor;

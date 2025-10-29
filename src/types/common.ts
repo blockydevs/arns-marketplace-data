@@ -10,3 +10,22 @@ export type OwnershipType = 'lease' | 'permabuy';
 export type OrderType = 'fixed' | 'english' | 'dutch';
 
 export type OwnedANT = AoArNSNameDataWithName & { listing: ActiveListing | null };
+
+export interface AntRecord {
+  startTimestamp: number;
+  endTimestamp?: number;
+  processId: string;
+  type: OwnershipType;
+  name: string;
+  purchasePrice: number;
+  undernameLimit: number;
+}
+
+export interface ANTMetadata {
+  processId: string;
+  name: string;
+  ownershipType: OwnershipType;
+  purchasePrice: number;
+  purchasedAt: string;
+  leaseEndsAt: string | null;
+}

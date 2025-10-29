@@ -2,8 +2,6 @@ import type { ActiveListing, ActiveListingCommonFields } from '../types/active-l
 import type { RawActiveListing } from '../types/active-listings.raw';
 
 export function transformRawActiveListing(raw: RawActiveListing): ActiveListing {
-  const leaseStartedAt = raw.LeaseStartTimestamp ?? null;
-  const leaseEndsAt = raw.LeaseEndTimestamp ?? null;
   const expirationTime = raw.ExpirationTime ?? null;
   const createdAt = raw.CreatedAt;
   const hasExpired = raw.ExpirationTime ? Date.now() > raw.ExpirationTime : false;
@@ -12,12 +10,8 @@ export function transformRawActiveListing(raw: RawActiveListing): ActiveListing 
     orderId: raw.OrderId,
     sender: raw.Sender,
     duration: expirationTime ? expirationTime - createdAt : null,
-    name: raw.Domain,
     antProcessId: raw.DominantToken,
     quantity: raw.Quantity,
-    ownershipType: raw.OwnershipType,
-    leaseStartedAt: leaseStartedAt ? new Date(leaseStartedAt).toISOString() : null,
-    leaseEndsAt: leaseEndsAt ? new Date(leaseEndsAt).toISOString() : null,
     createdAt: new Date(createdAt).toISOString()
   };
 

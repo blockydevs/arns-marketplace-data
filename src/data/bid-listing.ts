@@ -7,13 +7,13 @@ interface Props {
   orderId: string;
   bidPrice: string;
   marketplaceProcessId: string;
+  arioProcessId: string;
   antTokenId: string;
-  swapTokenId: string;
 }
 
 export async function bidListing(props: Props) {
-  const { ao, signer, walletAddress, orderId, bidPrice, marketplaceProcessId, antTokenId, swapTokenId } = props;
-  const contract = ARIO.init({ signer, process: new AOProcess({ ao, processId: swapTokenId }) });
+  const { ao, signer, walletAddress, orderId, bidPrice, marketplaceProcessId, arioProcessId, antTokenId } = props;
+  const contract = ARIO.init({ signer, process: new AOProcess({ ao, processId: arioProcessId }) });
 
   const rawData = await contract.transfer(
     { target: marketplaceProcessId, qty: Number(bidPrice) * MARIO_PER_ARIO },
@@ -29,7 +29,7 @@ export async function bidListing(props: Props) {
         },
         {
           name: 'X-Dominant-Token',
-          value: swapTokenId
+          value: arioProcessId
         },
         {
           name: 'X-Swap-Token',

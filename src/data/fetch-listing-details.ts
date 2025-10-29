@@ -6,15 +6,15 @@ import type { RawListingDetails } from '../types/listing-details.raw';
 
 interface Props {
   ao: AoClient;
-  activityProcessId: string;
+  marketplaceProcessId: string;
   orderId: string;
 }
 
 export type FetchListingDetailsResult = ListingDetails;
 
 export async function fetchListingDetails(props: Props): Promise<FetchListingDetailsResult> {
-  const { ao, activityProcessId, orderId } = props;
-  const contract = ARIO.init({ process: new AOProcess({ ao, processId: activityProcessId }) });
+  const { ao, marketplaceProcessId, orderId } = props;
+  const contract = ARIO.init({ process: new AOProcess({ ao, processId: marketplaceProcessId }) });
 
   const result = await contract.process.read<RawListingDetails | undefined>({
     tags: [

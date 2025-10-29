@@ -2,8 +2,6 @@ import type { CompletedListing, CompletedListingCommonFields } from '../types/co
 import type { RawCompletedListing } from '../types/completed-listings.raw';
 
 export function transformRawCompletedListing(raw: RawCompletedListing): CompletedListing {
-  const leaseStartedAt = raw.LeaseStartTimestamp ?? null;
-  const leaseEndsAt = raw.LeaseEndTimestamp ?? null;
   const expirationTime = raw.ExpirationTime ?? null;
   const endedAt = raw.EndedAt;
   const createdAt = raw.CreatedAt;
@@ -12,12 +10,8 @@ export function transformRawCompletedListing(raw: RawCompletedListing): Complete
     orderId: raw.OrderId,
     sender: raw.Sender,
     duration: expirationTime ? expirationTime - createdAt : null,
-    name: raw.Domain,
     antProcessId: raw.DominantToken,
     quantity: raw.Quantity,
-    ownershipType: raw.OwnershipType,
-    leaseStartedAt: leaseStartedAt ? new Date(leaseStartedAt).toISOString() : null,
-    leaseEndsAt: leaseEndsAt ? new Date(leaseEndsAt).toISOString() : null,
     createdAt: new Date(createdAt).toISOString(),
     endedAt: new Date(endedAt).toISOString()
   };
